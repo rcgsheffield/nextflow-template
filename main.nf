@@ -2,44 +2,24 @@
 
 // This is the main Nextflow workflow definition
 
-// Input parameters
-params.str = "Hello world!"
-
 // Processes
-
-process split {
-    publishDir "results/lower"
-
+process sayHello {
     input:
-    val x
+        val greeting
 
     output:
-    path "chunk_*"
+        path "${greeting}-output.txt"
 
     script:
     """
-    printf '${x}' | split -b 6 - chunk_
-    """
-}
-
-process convert_to_upper {
-    publishDir "results/upper"
-    tag "$y"
-
-    input:
-    path y
-
-    output:
-    path "upper_*"
-
-    script:
-    """
-    cat $y | tr '[a-z]' '[A-Z]' > upper_${y}
+    echo '$greeting' > '$greeting-output.txt'
     """
 }
 
 // Workflow
 workflow {
-    split(params.str)
-    convert_to_upper(split.out.flatten())
+    // Create a channel with a single column from the input data
+    greeting_channel = Channel.fromPath("data/hello.csv").splitCsv(header: true).map( line -> line.greeting)
+
+    sayHello(greeting_channel)
 }
