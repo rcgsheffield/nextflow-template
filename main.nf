@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
-// This is the main Nextflow workflow definition
+// Parameters
+params.input = "data/hello.csv"
 
 // Processes
 process sayHello {
@@ -19,7 +20,7 @@ process sayHello {
 // Workflow
 workflow {
     // Create a channel with a single column from the input data
-    greeting_channel = Channel.fromPath("data/hello.csv").splitCsv(header: true).map( line -> line.greeting)
+    greeting_channel = Channel.fromPath(params.input).splitCsv(header: true).map( line -> line.greeting)
 
     sayHello(greeting_channel)
 }
